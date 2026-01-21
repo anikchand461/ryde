@@ -1,8 +1,4 @@
-# backend/requirements.txt
 fastapi
 uvicorn
 sqlalchemy
-pydantic
-pydantic-settings>=2.0
-passlib[bcrypt]
-python-jose[cryptography]
+pyjwt

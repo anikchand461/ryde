@@ -1,10 +1,1 @@
-backend/venv/
 venv/
-__pycache__/
-*.pyc
-.DS_Store
-.env
-backend/routers/__pycache__/
-backend/routers/*.pyc
-backend/__pycache__/
-backend/*.pyc

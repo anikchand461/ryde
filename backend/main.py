@@ -1,44 +1,45 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, HTMLResponse
 from pathlib import Path
-
-from .routers import auth, users, repair, towing, bookings
+from .database import engine
+from .models import Base
+from .notifications import connected_clients, send_notification
+from .routers import users, bookings, providers
+import uvicorn
 
 app = FastAPI()
 
-# Get the base directory (parent of backend directory)
-BASE_DIR = Path(__file__).resolve().parent.parent
-STATIC_DIR = BASE_DIR / "frontend" / "static"
+# CORS for frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# Mount static files (css, js, images, etc.)
-app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+# Create DB tables
+Base.metadata.create_all(bind=engine)
 
-# Important: Serve index.html for root path "/"
-@app.get("/", response_class=HTMLResponse)
-async def serve_index():
-    index_path = STATIC_DIR / "index.html"
-    if not index_path.exists():
-        return HTMLResponse(content="<h1>index.html not found</h1>", status_code=404)
-    return FileResponse(index_path)
+# Include routers
+app.include_router(users.router, prefix="/users")
+app.include_router(bookings.router, prefix="/bookings")
+app.include_router(providers.router, prefix="/providers")
 
-# Optional: serve other HTML pages directly if you want clean URLs
-# (you can also let the frontend router handle them later)
-@app.get("/register", response_class=HTMLResponse)
-async def serve_register():
-    return FileResponse(STATIC_DIR / "register.html")
+# Serve frontend
+FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
+app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
 
-@app.get("/dashboard", response_class=HTMLResponse)
-async def serve_dashboard():
-    return FileResponse(STATIC_DIR / "dashboard.html")
+@app.websocket("/ws/{user_id}")
+async def websocket_endpoint(websocket: WebSocket, user_id: int):
+    await websocket.accept()
+    connected_clients[user_id] = websocket
+    try:
+        while True:
+            data = await websocket.receive_text()
+    except WebSocketDisconnect:
+        del connected_clients[user_id]
 
-# Your API routes
-app.include_router(auth.router)
-app.include_router(users.router)
-app.include_router(repair.router)
-app.include_router(towing.router)
-app.include_router(bookings.router)
-
-@app.get("/health")
-def health_check():
-    return {"status": "ok"}
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

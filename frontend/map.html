@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Find Provider - Ryde Platform</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Find & Book a Service Provider</h1>
+        <p>Select your location and choose a provider on the map</p>
+        
+        <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h3>📍 Your Location</h3>
+            <div style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 200px;">
+                    <label>Latitude:</label>
+                    <input type="number" id="manualLat" step="0.000001" placeholder="e.g., 28.6139" required>
+                </div>
+                <div style="flex: 1; min-width: 200px;">
+                    <label>Longitude:</label>
+                    <input type="number" id="manualLng" step="0.000001" placeholder="e.g., 77.2090" required>
+                </div>
+                <button id="detectBtn" onclick="detectLocation()" type="button">📍 Detect My Location</button>
+                <button onclick="updateMapLocation()" type="button">🔍 Search This Location</button>
+            </div>
+            <small style="color: #666;">Tip: Click "Detect My Location" or enter coordinates manually</small>
+        </div>
+        
+        <div id="map" style="height: 500px; margin: 20px 0; border-radius: 8px;"></div>
+        
+        <h3>Booking Details</h3>
+        <form id="bookingForm">
+            <label>Breakdown/Issue Type: 
+                <select id="breakdownType" required>
+                    <option value="">-- Select Issue --</option>
+                </select>
+            </label><br>
+            
+            <label>Description (optional): 
+                <textarea id="description" rows="3" placeholder="Describe your issue in detail..."></textarea>
+            </label><br>
+            
+            <div id="towingReasonSection" style="display: none;">
+                <label>Reason for Towing:
+                    <select id="reason">
+                        <option value="">-- Select reason --</option>
+                        <option value="breakdown">Breakdown</option>
+                        <option value="accident">Accident</option>
+                        <option value="long-distance">Long distance transport</option>
+                    </select>
+                </label><br>
+            </div>
+            
+            <button type="submit">Submit Booking Request</button>
+            <a href="dashboard.html"><button type="button">Cancel</button></a>
+        </form>
+    </div>
+    <script src="js/map.js"></script>
+    <script src="js/bookings.js"></script>
+</body>
+</html>

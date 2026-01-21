@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register - Ryde Platform</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Create Your Account</h1>
+        <p><strong>Choose your role and complete the registration form</strong></p>
+        <form id="registerForm">
+            <h3>Basic Information</h3>
+            <label>Full Name: <input type="text" id="name" required placeholder="Enter your full name"></label><br>
+            <label>Email: <input type="email" id="email" required placeholder="Enter your email"></label><br>
+            <label>Phone/WhatsApp: <input type="text" id="phone" required placeholder="+91XXXXXXXXXX"></label><br>
+            <label>Password: <input type="password" id="password" required placeholder="Create a password"></label><br>
+            
+            <h3>Select Your Role</h3>
+            <label>I am a: 
+                <select id="role" required>
+                    <option value="">-- Select Role --</option>
+                    <option value="owner">🚗 Vehicle Owner/Driver</option>
+                    <option value="repair">🔧 Repair Shop/Mechanic</option>
+                    <option value="towing">🚛 Towing Service Provider</option>
+                </select>
+            </label><br>
+            
+            <!-- Additional fields loaded dynamically -->
+            <div id="additionalFields"></div>
+            
+            <button type="submit">Complete Registration</button>
+        </form>
+        <p>Already registered? <a href="login.html">Login here</a>.</p>
+        <p><a href="index.html">← Back to Home</a></p>
+    </div>
+    <script src="js/auth.js"></script>
+</body>
+</html>

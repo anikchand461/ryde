@@ -1,94 +1,69 @@
-# backend/app/models.py
-from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, Float, Enum as SQLEnum
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, Float, JSON, ForeignKey, DateTime
+from sqlalchemy.sql import func
 from .database import Base
-import enum
-
-class UserRole(enum.Enum):
-    OWNER = "OWNER"
-    REPAIR = "REPAIR"
-    TOWING = "TOWING"
 
 class User(Base):
     __tablename__ = "users"
-
     id = Column(Integer, primary_key=True, index=True)
-    full_name = Column(String)
-    email = Column(String, unique=True, index=True)
+    name = Column(String)
+    email = Column(String, unique=True)
     phone = Column(String)
-    hashed_password = Column(String)
-    role = Column(SQLEnum(UserRole))
+    role = Column(String)  # "owner", "repair", "towing"
+    password = Column(String)  # Hashed in production
+    vehicle_type = Column(String, nullable=True)
+    vehicle_name = Column(String, nullable=True)
+    vehicle_model = Column(String, nullable=True)
+    vehicle_registration = Column(String, nullable=True)
 
-    owner_profile = relationship("VehicleOwner", back_populates="user", uselist=False)
-    repair_profile = relationship("RepairShop", back_populates="user", uselist=False)
-    towing_profile = relationship("TowingProvider", back_populates="user", uselist=False)
-
-class VehicleType(enum.Enum):
-    CAR = "CAR"
-    BIKE = "BIKE"
-    OTHER = "OTHER"
-
-class VehicleOwner(Base):
-    __tablename__ = "vehicle_owners"
-
+class Vehicle(Base):
+    __tablename__ = "vehicles"
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    vehicle_type = Column(SQLEnum(VehicleType))
-    vehicle_name = Column(String)
-    vehicle_model = Column(String)
-    vehicle_registration = Column(String)
+    type = Column(String)  # "car", "bike", "other"
+    name = Column(String)
+    model = Column(String)
+    registration = Column(String)
 
-    user = relationship("User", back_populates="owner_profile")
-
-class RepairShop(Base):
-    __tablename__ = "repair_shops"
-
+class RepairProvider(Base):
+    __tablename__ = "repair_providers"
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    vehicle_types = Column(String)  # Comma-separated
-    breakdown_services = Column(String)  # JSON or comma-separated
-    location_lat = Column(Float)
-    location_long = Column(Float)
-    shop_timings = Column(String)
+    vehicle_types = Column(JSON)  # ["car", "bike"]
+    breakdowns = Column(JSON)  # Dict of vehicle_type: [breakdowns]
+    lat = Column(Float)
+    lng = Column(Float)
+    timings = Column(String)
     shop_name = Column(String)
-    amenities = Column(String)
-
-    user = relationship("User", back_populates="repair_profile")
+    email = Column(String)
+    phone = Column(String)
+    amenities = Column(JSON)
 
 class TowingProvider(Base):
     __tablename__ = "towing_providers"
-
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    vehicle_types = Column(String)  # Comma-separated
-    towing_capabilities = Column(String)
-    base_lat = Column(Float)
-    base_long = Column(Float)
-    coverage_radius_km = Column(Float)
-    availability_timings = Column(String)
+    vehicle_types = Column(JSON)
+    capabilities = Column(JSON)
+    lat = Column(Float)
+    lng = Column(Float)
+    radius = Column(Float)
+    timings = Column(String)
     provider_name = Column(String)
-    towing_capacity = Column(String)
-    additional_services = Column(String)
-
-    user = relationship("User", back_populates="towing_profile")
-
-class BookingStatus(enum.Enum):
-    PENDING = "PENDING"
-    ACCEPTED = "ACCEPTED"
-    REJECTED = "REJECTED"
-    CANCELLED = "CANCELLED"
+    email = Column(String)
+    phone = Column(String)
+    capacity = Column(String)
+    additional_services = Column(JSON)
 
 class Booking(Base):
     __tablename__ = "bookings"
-
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    provider_id = Column(Integer)  # Could be repair or towing
-    service_type = Column(String)  # "REPAIR" or "TOWING"
+    provider_id = Column(Integer)  # User ID of provider
+    type = Column(String)  # "repair", "towing"
     breakdown_type = Column(String)
     description = Column(String)
-    location_lat = Column(Float)
-    location_long = Column(Float)
-    status = Column(SQLEnum(BookingStatus), default=BookingStatus.PENDING)
-
-    user = relationship("User", foreign_keys=[user_id])
+    reason = Column(String)
+    lat = Column(Float)
+    lng = Column(Float)
+    status = Column(String, default="pending")  # pending, accepted, rejected, cancelled
+    created_at = Column(DateTime, default=func.now())

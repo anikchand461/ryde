@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Ryde Platform</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Dashboard</h1>
+        <button id="logout">Logout</button>
+        
+        <div style="margin: 30px 0;">
+            <h2>Book a Service</h2>
+            <a href="map.html?type=repair"><button>🔧 Book Repair Service</button></a>
+            <a href="map.html?type=towing"><button>🚛 Book Towing Service</button></a>
+        </div>
+        
+        <h2>Your Bookings</h2>
+        <ul id="bookingsList"></ul>
+    </div>
+    <script src="js/main.js"></script>
+    <script src="js/bookings.js"></script>
+</body>
+</html>

@@ -1,67 +1,90 @@
-# backend/app/schemas.py
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel
-from typing import Optional, List
-from .models import UserRole, VehicleType, BookingStatus
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-class TokenData(BaseModel):
-    username: Optional[str] = None
 
 class UserBase(BaseModel):
-    full_name: str
-    email: str
-    phone: str
+	name: str
+	email: str
+	phone: str
+	role: str
+	password: str
+	vehicle_type: Optional[str] = None
+	vehicle_name: Optional[str] = None
+	vehicle_model: Optional[str] = None
+	vehicle_registration: Optional[str] = None
 
-class UserCreate(UserBase):
-    password: str
-    role: UserRole
-    owner_profile: Optional[dict] = None
-    repair_profile: Optional[dict] = None
-    towing_profile: Optional[dict] = None
 
-class VehicleOwnerCreate(BaseModel):
-    vehicle_type: VehicleType
-    vehicle_name: str
-    vehicle_model: str
-    vehicle_registration: str
+class VehicleBase(BaseModel):
+	type: str
+	name: str
+	model: str
+	registration: str
 
-class RepairShopCreate(BaseModel):
-    vehicle_types: str
-    breakdown_services: str
-    location_lat: float
-    location_long: float
-    shop_timings: str
-    shop_name: str
-    amenities: str
 
-class TowingProviderCreate(BaseModel):
-    vehicle_types: str
-    towing_capabilities: str
-    base_lat: float
-    base_long: float
-    coverage_radius_km: float
-    availability_timings: str
-    provider_name: str
-    towing_capacity: str
-    additional_services: str
+class RepairProviderBase(BaseModel):
+	vehicle_types: List[str]
+	breakdowns: Dict[str, List[str]]
+	lat: float
+	lng: float
+	timings: str
+	shop_name: str
+	email: str
+	phone: str
+	amenities: List[str]
 
-class BookingCreate(BaseModel):
-    provider_id: int
-    service_type: str
-    breakdown_type: Optional[str] = None
-    description: Optional[str] = None
-    location_lat: float
-    location_long: float
 
-class Booking(BaseModel):
-    id: int
-    user_id: int
-    provider_id: int
-    service_type: str
-    status: BookingStatus
+class TowingProviderBase(BaseModel):
+	vehicle_types: List[str]
+	capabilities: List[str]
+	lat: float
+	lng: float
+	radius: float
+	timings: str
+	provider_name: str
+	email: str
+	phone: str
+	capacity: str
+	additional_services: List[str]
 
-    class Config:
-        orm_mode = True
+
+class BookingBase(BaseModel):
+	provider_id: int
+	type: str
+	breakdown_type: str
+	description: str
+	lat: float
+	lng: float
+	reason: Optional[str] = None
+
+
+class BookingResponse(BookingBase):
+	id: int
+	user_id: int
+	status: str
+	created_at: datetime
+
+	class Config:
+		orm_mode = True
+
+
+class ProviderResponse(BaseModel):
+	id: int  # provider user id used for booking
+	provider_record_id: int
+	name: str
+	lat: float
+	lng: float
+	distance: float
+	details: Dict[str, Any]
+
+	class Config:
+		orm_mode = True
+
+
+class Token(BaseModel):
+	access_token: str
+	token_type: str
+	user_id: int
+	role: str
+	vehicle_type: Optional[str] = None
